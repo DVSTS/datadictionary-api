@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html ng-app="contactApp">
+<head>
+<title>Dictionary</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="images/contacts-icon.png" rel="shortcut icon" />
+<link href="styles/bootstrap-3.1.1.min.css" rel="stylesheet" />
+<link href="styles/app.css" rel="stylesheet" />
+</head>
+<body ng-controller="ContactController" ng-init="init()">
+	<div class="navbar navbar-default navbar-fixed-top">
+		<h4 class="col-xs-12">Upload Swagger</h4>
+		<input type="file" id="swagger"
+			onchange="angular.element(this).scope().uploadSwagger()" />
+	</div>
+	
+	<br />
+	<div style="align: center">
+		<table ng-if="pastrecords != null && pastrecords.length > 0">
+			<tr>
+				<th>ID</th>
+				<th>FILE NAME</th>
+				<th>VERSION</th>
+				<th>NAME</th>
+				<th>UPLOAD DATE</th>
+			</tr>
+			<tr ng-repeat="x in pastrecords">
+				<td class="b">{{ x.id }}</td>
+				<td ><a href="/v1/api/dictionary/swagger/download?fileName={{ x.fileName }}">{{ x.fileName }}</a></td>
+				<td >{{ x.version }}</td>
+				<td>{{ x.name }}</td>
+				<td>{{ x.uploadDate }}</td>
+			</tr>
+		</table>
+	</div>
+	<script src="scripts/libs/angular-1.2.15.min.js"></script>
+	<script src="scripts/app.js"></script>
+	<script src="scripts/controllers/ContactController.js"></script>
+</body>
+</html>

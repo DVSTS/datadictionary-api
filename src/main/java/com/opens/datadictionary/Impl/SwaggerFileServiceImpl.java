@@ -66,7 +66,7 @@ public class SwaggerFileServiceImpl implements SwaggerFileService {
 			if (file != null) {
 				String uuid = UUID.randomUUID().toString();
 				String fileName = uuid + "~"
-						+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss-SSS")) + "~"
+						+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MMM-dd-HH-mm-ss-SSS")) + "~"
 						+ file.getOriginalFilename();
 				Files.copy(file.getInputStream(), this.rootLocation.resolve(fileName));
 
@@ -217,8 +217,8 @@ public class SwaggerFileServiceImpl implements SwaggerFileService {
 					String content = getDataFromFile(resource.getInputStream());
 					String split[] = filename.getKey().split("~");
 					String valueSplit[] = filename.getValue().split("~");
-					swaggerDetails.add(new SwaggerDetail(split[0], filename.getKey(), content, split[1], valueSplit[1],
-							valueSplit[2],validateValidSwaggerFile(content)));
+					swaggerDetails.add(new SwaggerDetail(split[0], filename.getKey(), content, split[1], valueSplit[2],
+							valueSplit[1],validateValidSwaggerFile(content)));
 				}
 			} catch (Exception e) {
 				logger.error("Exception occured while loading file history = {} ", e);
