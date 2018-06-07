@@ -36,10 +36,11 @@ public class APISwaggerUploadController {
 	private ObjectMapper objectMapper = new ObjectMapper();
 
 	@RequestMapping(value = "upload", method = RequestMethod.POST)
-	public void uploadSwagger(@RequestParam("file") MultipartFile file, HttpServletRequest request,
+	public ResponseEntity<String> uploadSwagger(@RequestParam("file") MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) {
 		LOGGER.info("Received swagger files.");
 		swaggerService.store(file);
+		return ResponseEntity.ok("Uploaded Successfully");
 	}
 
 	@RequestMapping(value = "uploadHistory", method = RequestMethod.GET)
