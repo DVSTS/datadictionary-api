@@ -35,6 +35,7 @@ import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.Response;
 import io.swagger.models.Swagger;
+import io.swagger.models.auth.SecuritySchemeDefinition;
 import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.HeaderParameter;
 import io.swagger.models.parameters.Parameter;
@@ -69,6 +70,16 @@ public class SolrIndexServiceImpl implements IndexService {
 		if (swagger.getInfo() != null) {
 			solrDocumentDto.setDescription(swagger.getInfo().getDescription());
 			solrDocumentDto.setTitle(swagger.getInfo().getTitle());
+			solrDocumentDto.setVersionId(swagger.getInfo().getVersion());
+			solrDocumentDto.setName(swagger.getInfo().getTitle());
+		}
+
+		List<String> securityDefMetaDat = new ArrayList<>();
+
+		if (swagger.getSecurityDefinitions() != null && swagger.getSecurityDefinitions().size() > 0) {
+			for (Entry<String, SecuritySchemeDefinition> entry : swagger.getSecurityDefinitions().entrySet()) {
+				securityDefMetaDat.add(entry.getValue().getDescription());
+			}
 		}
 
 		final Map<String, Map<String, String>> responseMap = responseMap(swagger);
@@ -173,8 +184,11 @@ public class SolrIndexServiceImpl implements IndexService {
 				SolrDocumentDto flatSolrDocumentDto = solrDocumentDto.clone();
 				ApiResource flatApiResource = apiResource.clone();
 				String id = flatSolrDocumentDto.getSwaggerDocId() + APIEndpoints.SEPERATOR
-						+ flatApiResource.getResourceUrl() + APIEndpoints.SEPERATOR + flatApiResource.getMethodName();
+						+ flatSolrDocumentDto.getName() + APIEndpoints.SEPERATOR + flatSolrDocumentDto.getVersionId()
+						+ APIEndpoints.SEPERATOR + flatApiResource.getResourceUrl() + APIEndpoints.SEPERATOR
+						+ flatApiResource.getMethodName();
 				flatSolrDocumentDto.setUniqueId(id);
+				securityDefMetaDat.removeAll(Collections.singleton(null));
 				if (apiResource.getResponseDef() != null) {
 					for (String responseDef : apiResource.getResponseDef()) {
 						if (responseMap.get(responseDef) != null) {
@@ -185,6 +199,7 @@ public class SolrIndexServiceImpl implements IndexService {
 						}
 					}
 				}
+				apiResource.getMeataData().append(Joiner.on(" ").join(securityDefMetaDat));
 				flatSolrDocumentDto.setApiResource(flatApiResource);
 				if (apiResource.getRequestFields() != null) {
 					for (String requestF : apiResource.getRequestFields()) {
@@ -327,6 +342,8 @@ public class SolrIndexServiceImpl implements IndexService {
 						document.setField("allFields", dto.getAllFields());
 					}
 					document.setField("active", dto.isActive());
+					document.setField("versionId", dto.getVersionId());
+					document.setField("name", dto.getName());
 					httpSolrClient.add(document);
 					httpSolrClient.commit();
 				} catch (Exception e) {

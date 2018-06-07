@@ -11,6 +11,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.CommonParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import com.opens.datadictionary.service.SearchService;
 import com.opens.datadictionary.solr.dtos.SearchRequest;
+
+import io.swagger.models.Swagger;
 
 @Service
 public class SolrSearchServiceImpl implements SearchService {
@@ -88,26 +91,58 @@ public class SolrSearchServiceImpl implements SearchService {
 	}
 
 	@Override
-	public List<String> uploadedFiles() {
-		List<String> files = new ArrayList<>();
+	public Map<String, String> uploadedFiles() {
+		Map<String, String> filenameIdMap = new HashMap<String, String>();
 		try {
 			SolrQuery query = new SolrQuery();
 			query.set(CommonParams.ROWS, Integer.MAX_VALUE);
 			String queryText = "*:*";
 			query.set("q", queryText);
-			query.setFields("fileName");
+			query.setFields("fileName", "id");
 			QueryResponse response = httpSolrClient.query(query);
 			SolrDocumentList docList = response.getResults();
 			for (SolrDocument doc : docList) {
 				String fileName = doc.get("fileName").toString();
-				if (fileName != null && !files.contains(fileName)) {
-					files.add(fileName);
+				if (fileName != null && !filenameIdMap.containsKey(fileName)) {
+					filenameIdMap.put(fileName, doc.get("id").toString());
 				}
 			}
 		} catch (Exception e) {
 			logger.error("Exception occured while getting uploaded swaggers = {} ", e);
 		}
-		return files;
+		return filenameIdMap;
+	}
+
+	@Override
+	public boolean deactivateExisting(Swagger swagger) {
+		String title = swagger.getInfo().getTitle();
+		logger.info("Deactivating existing swagger = {} ", title);
+		Map<String, List<String>> filenameIdMap = new HashMap<String, List<String>>();
+		try {
+			Integer count = 0;
+			SolrQuery query = new SolrQuery();
+			query.set(CommonParams.ROWS, Integer.MAX_VALUE);
+			String queryText = "name:" + title;
+			queryText += " active:true";
+			
+			query.set("q", queryText);
+			QueryResponse response = httpSolrClient.query(query);
+			SolrDocumentList docList = response.getResults();
+			for (SolrDocument doc : docList) {
+				SolrInputDocument solrDocument = new SolrInputDocument();
+				solrDocument.setField("id", doc.get("id").toString());
+				Map<String,Object> fieldModifier = new HashMap<>(1);
+				fieldModifier.put("set",false);
+				solrDocument.setField("active", fieldModifier);
+				count++;
+				httpSolrClient.add(solrDocument);
+				httpSolrClient.commit();
+			}
+			logger.info("Total Records returned =  {} Records filenameIdMap = {}  ", count, filenameIdMap);
+		} catch (Exception e) {
+			logger.error("Exception occured while searching in Solr = {} ", e);
+		}
+		return true;
 	}
 
 }

@@ -149,6 +149,17 @@
       <filter class="solr.KStemFilterFactory"/>
     </analyzer>
   </fieldType>
+  
+   <fieldType name="string_case_insensitive" class="solr.TextField" autoGeneratePhraseQueries="false" omitNorms="true">
+    <analyzer type="index">
+     <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+    </analyzer>
+    <analyzer type="query">
+     <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+    </analyzer>
+  </fieldType>
 
     
     <!-- Dictionary Fields STARTED -->
@@ -166,8 +177,8 @@
     <field name="pathFields" type="string_tags"  indexed="true"  stored="true" multiValued="true"/>
     <field name="allFields" type="string_tags"  indexed="true"  stored="true" multiValued="true"/>
     <field name="active" type="boolean" indexed="true" stored="true" docValues="false" />
-    
-    
+    <field name="versionId" type="string_case_insensitive" indexed="true" stored="true" docValues="false" />
+    <field name="name" type="string_case_insensitive" indexed="true" stored="true" docValues="false" />
     
     <field name="apiResource.metadata" type="text_ws_sd" indexed="true" stored="true" docValues="false" />
     <field name="apiResource.resourceUrl" type="string_tags" indexed="true" stored="true" docValues="false" />

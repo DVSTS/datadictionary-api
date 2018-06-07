@@ -73,6 +73,8 @@ public class SwaggerFileServiceImpl implements SwaggerFileService {
 				String swaggerContent = getDataFromFile(file.getInputStream());
 
 				Swagger swagger = validateValidSwaggerFile(swaggerContent);
+				
+				solrSearchService.deactivateExisting(swagger);
 
 				// Saving file to mongo database
 				SwaggerDetail swaggerDetail = new SwaggerDetail(UUID.randomUUID().toString(), fileName, swaggerContent);
@@ -207,14 +209,16 @@ public class SwaggerFileServiceImpl implements SwaggerFileService {
 	@Override
 	public List<SwaggerDetail> uploadHistory() {
 		List<SwaggerDetail> swaggerDetails = new ArrayList<>();
-		List<String> files = solrSearchService.uploadedFiles();
-		for (String filename : files) {
+		Map<String, String> files = solrSearchService.uploadedFiles();
+		for (Entry<String, String> filename : files.entrySet()) {
 			try {
-				Resource resource = loadFile(filename);
+				Resource resource = loadFile(filename.getKey());
 				if (resource != null) {
 					String content = getDataFromFile(resource.getInputStream());
-					String split[] = filename.split("~");
-					swaggerDetails.add(new SwaggerDetail(split[0], filename, content, split[1]));
+					String split[] = filename.getKey().split("~");
+					String valueSplit[] = filename.getValue().split("~");
+					swaggerDetails.add(new SwaggerDetail(split[0], filename.getKey(), content, split[1], valueSplit[1],
+							valueSplit[2],validateValidSwaggerFile(content)));
 				}
 			} catch (Exception e) {
 				logger.error("Exception occured while loading file history = {} ", e);

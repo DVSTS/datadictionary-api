@@ -1,7 +1,6 @@
 package com.opens.datadictionary.controller;
 
 import java.io.File;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,8 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opens.datadictionary.exceptions.GenericException;
-import com.opens.datadictionary.mongo.models.SwaggerDetail;
 import com.opens.datadictionary.service.SwaggerFileService;
 
 @RestController
@@ -31,6 +32,8 @@ public class APISwaggerUploadController {
 
 	@Autowired
 	private SwaggerFileService swaggerService;
+	
+	private ObjectMapper objectMapper = new ObjectMapper();
 
 	@RequestMapping(value = "upload", method = RequestMethod.POST)
 	public void uploadSwagger(@RequestParam("file") MultipartFile file, HttpServletRequest request,
@@ -40,9 +43,10 @@ public class APISwaggerUploadController {
 	}
 
 	@RequestMapping(value = "uploadHistory", method = RequestMethod.GET)
-	public List<SwaggerDetail> history(HttpServletRequest request, HttpServletResponse response) {
+	public String history(HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
 		LOGGER.info("Upload history request received.");
-		return swaggerService.uploadHistory();
+		objectMapper.setSerializationInclusion(Include.NON_NULL);
+		return objectMapper.writeValueAsString(swaggerService.uploadHistory());
 	}
 
 	@RequestMapping(value = "download", method = RequestMethod.GET)
