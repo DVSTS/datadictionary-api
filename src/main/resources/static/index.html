@@ -45,7 +45,7 @@
 	        <div class="form-group" ng-repeat ="(key, value) in facets">
 					   <label for="key">{{key}}</label>
 					   <ui-select ng-change="selectedFields(this)" ng-if ="value.length > 0" multiple ng-model="key$index" theme="bootstrap" ng-disabled="ctrl.disabled" close-on-select="false" style="width: 300px;" title="Choose a color">
-						    <ui-select-match placeholder="Select colors...">{{$item}}</ui-select-match>
+						    <ui-select-match placeholder="Select fields...">{{$item}}</ui-select-match>
 						    <ui-select-choices repeat="v in value | filter:$select.search">
 						      {{v}}
 						    </ui-select-choices>
