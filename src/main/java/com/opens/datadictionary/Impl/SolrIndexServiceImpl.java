@@ -132,7 +132,7 @@ public class SolrIndexServiceImpl implements IndexService {
 												fieldsMetaData.add(param.getDescription());
 											}
 											if (param instanceof HeaderParameter) {
-												apiResource.getRequestFields().add(param.getName());
+												apiResource.getHeaderFields().add(param.getName());
 											}
 											if (param instanceof PathParameter) {
 												apiResource.getPathFields().add(param.getName());
