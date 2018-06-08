@@ -1,7 +1,8 @@
 package com.opens.datadictionary.solr.dtos;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SearchRequest implements Serializable {
 
@@ -9,7 +10,15 @@ public class SearchRequest implements Serializable {
 
 	private String searchText;
 
-	private List<FieldFilter> filters;
+	private Map<String, Set<String>> selectedFacets;
+
+	public Map<String, Set<String>> getSelectedFacets() {
+		return selectedFacets;
+	}
+
+	public void setSelectedFacets(Map<String, Set<String>> selectedFacets) {
+		this.selectedFacets = selectedFacets;
+	}
 
 	public String getSearchText() {
 		return searchText;
@@ -17,14 +26,6 @@ public class SearchRequest implements Serializable {
 
 	public void setSearchText(String searchText) {
 		this.searchText = searchText;
-	}
-
-	public List<FieldFilter> getFilters() {
-		return filters;
-	}
-
-	public void setFilters(List<FieldFilter> filters) {
-		this.filters = filters;
 	}
 
 }

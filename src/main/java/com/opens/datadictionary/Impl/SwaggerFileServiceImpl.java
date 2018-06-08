@@ -149,8 +149,8 @@ public class SwaggerFileServiceImpl implements SwaggerFileService {
 				for (String endPoints : entry.getValue()) {
 					String splits[] = endPoints.split(APIEndpoints.SEPERATOR);
 					if (swagger.getPaths() != null && swagger.getPaths().size() > 0) {
-						if (swagger.getPaths().keySet().contains(splits[1])) {
-							retainEndPoints.add(splits[1]);
+						if (swagger.getPaths().keySet().contains(splits[3])) {
+							retainEndPoints.add(splits[3]);
 						}
 					}
 				}

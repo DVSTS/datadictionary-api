@@ -6,6 +6,7 @@
 <link href="images/contacts-icon.png" rel="shortcut icon" />
 <link href="styles/bootstrap-3.1.1.min.css" rel="stylesheet" />
 <link href="styles/app.css" rel="stylesheet" />
+<link href="styles/select.css" rel="stylesheet" />
 </head>
 <body ng-controller="ContactController" ng-init="init()">
 	<div class="navbar navbar-default navbar-fixed-top">
@@ -33,8 +34,31 @@
 			</tr>
 		</table>
 	</div>
-	<script src="scripts/libs/angular-1.2.15.min.js"></script>
+	<div>
+	
+		<form>
+	      <div class="container">
+	        <div class="form-group">
+	          <label for="name">SearchText:</label>
+	          <input type="text" name="name" class="form-control" ng-model="searchRequest.searchText">
+	        </div>
+	        <div class="form-group" ng-repeat ="(key, value) in facets">
+					   <label for="key">{{key}}</label>
+					   <ui-select ng-change="selectedFields(this)" ng-if ="value.length > 0" multiple ng-model="key$index" theme="bootstrap" ng-disabled="ctrl.disabled" close-on-select="false" style="width: 300px;" title="Choose a color">
+						    <ui-select-match placeholder="Select colors...">{{$item}}</ui-select-match>
+						    <ui-select-choices repeat="v in value | filter:$select.search">
+						      {{v}}
+						    </ui-select-choices>
+						  </ui-select>
+			</div>
+	        <button class="btn btn-default" ng-click="search()">Search</button>
+	      </div>
+	    </form>
+	</div>
+	 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-sanitize.js"></script>
 	<script src="scripts/app.js"></script>
 	<script src="scripts/controllers/ContactController.js"></script>
+	<script src="scripts/libs/select.js"></script>
 </body>
 </html>

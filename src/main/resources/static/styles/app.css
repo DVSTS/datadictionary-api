@@ -189,3 +189,10 @@ button.load-more {
 td.b {
     word-wrap: break-word;
 }
+a {
+  text-decoration: none;
+}
+
+td {
+  padding: 10px;
+}
