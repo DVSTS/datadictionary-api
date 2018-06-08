@@ -4,10 +4,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -16,6 +21,7 @@ import org.apache.solr.common.params.CommonParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.opens.datadictionary.service.SearchService;
@@ -30,6 +36,36 @@ public class SolrSearchServiceImpl implements SearchService {
 
 	@Autowired
 	private HttpSolrClient httpSolrClient;
+	
+	@Value("${solr.facet.fields}")
+	private String facetFields;
+
+	@Override
+	public Map<String, Set<String>> getFacets() {
+		Map<String, Set<String>> facets = new TreeMap<>();
+		try {
+			SolrQuery query = new SolrQuery();
+			query.set(CommonParams.ROWS, Integer.MAX_VALUE);
+			String queryText = "*:*";
+			query.set("q", queryText);
+			query.setFacet(true);
+			query.setFields("id");
+			query.addFacetField(facetFields.split(","));
+			QueryResponse response = httpSolrClient.query(query);
+			List<FacetField> facetFields = response.getFacetFields();
+			for (FacetField facet : facetFields) {
+				if (facets.get(facet.getName()) == null) {
+					facets.put(facet.getName(), new TreeSet<String>());
+				}
+				facets.get(facet.getName())
+						.addAll(facet.getValues().stream().map(obj -> obj.getName()).collect(Collectors.toSet()));
+			}
+			logger.info("Total Records returned =  {} Records filenameIdMap = {}  ", facets.size(), facets);
+		} catch (Exception e) {
+			logger.error("Exception occured while searching in Solr = {} ", e);
+		}
+		return facets;
+	}
 
 	@Override
 	public Map<String, List<String>> search(SearchRequest searchRequest) {
@@ -124,15 +160,15 @@ public class SolrSearchServiceImpl implements SearchService {
 			query.set(CommonParams.ROWS, Integer.MAX_VALUE);
 			String queryText = "name:" + title;
 			queryText += " active:true";
-			
+
 			query.set("q", queryText);
 			QueryResponse response = httpSolrClient.query(query);
 			SolrDocumentList docList = response.getResults();
 			for (SolrDocument doc : docList) {
 				SolrInputDocument solrDocument = new SolrInputDocument();
 				solrDocument.setField("id", doc.get("id").toString());
-				Map<String,Object> fieldModifier = new HashMap<>(1);
-				fieldModifier.put("set",false);
+				Map<String, Object> fieldModifier = new HashMap<>(1);
+				fieldModifier.put("set", false);
 				solrDocument.setField("active", fieldModifier);
 				count++;
 				httpSolrClient.add(solrDocument);

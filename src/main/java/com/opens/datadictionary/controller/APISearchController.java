@@ -1,5 +1,8 @@
 package com.opens.datadictionary.controller;
 
+import java.util.Map;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opens.datadictionary.service.SearchService;
 import com.opens.datadictionary.service.SwaggerFileService;
 import com.opens.datadictionary.solr.dtos.SearchRequest;
 
@@ -25,7 +29,10 @@ public class APISearchController {
 
 	@Autowired
 	private SwaggerFileService swaggerFileService;
-	
+
+	@Autowired
+	private SearchService searchService;
+
 	private ObjectMapper objectMapper = new ObjectMapper();
 
 	@RequestMapping(value = "search", method = RequestMethod.POST)
@@ -34,6 +41,13 @@ public class APISearchController {
 		LOGGER.info("Received search request = {} ", searchRequest);
 		objectMapper.setSerializationInclusion(Include.NON_NULL);
 		return objectMapper.writeValueAsString(swaggerFileService.searchSwaggers(searchRequest));
+	}
+
+	@RequestMapping(value = "facets", method = RequestMethod.GET)
+	public Map<String, Set<String>> searchAPI(HttpServletRequest request, HttpServletResponse response)
+			throws JsonProcessingException {
+		LOGGER.info("Facets request received.");
+		return searchService.getFacets();
 	}
 
 }

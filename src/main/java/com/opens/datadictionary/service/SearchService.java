@@ -2,6 +2,7 @@ package com.opens.datadictionary.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.opens.datadictionary.solr.dtos.SearchRequest;
 
@@ -14,4 +15,6 @@ public interface SearchService {
 	Map<String, String> uploadedFiles();
 
 	boolean deactivateExisting(Swagger swagger);
+
+	Map<String, Set<String>> getFacets();
 }
